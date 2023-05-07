@@ -33,12 +33,12 @@ cursor.execute("SELECT * FROM bigbench_2 WHERE category = '1_digit_addition' lim
 results = cursor.fetchall()
 psql_data = []
 for row in results:
-    psql_data.append({"number": row[0], "category": row[1], "question": row[2], "answer": row[3], "chatglm_130b_answer": row[4]})
+    psql_data.append({"number": row[0], "category": row[1], "question": row[2], "answer": row[3], "chatglm_130b_answer": row[5]})
 
 # 调用openai服务并将结果更新对应表单
 for psql_question in tqdm(psql_data, desc="处理问题进度"):
     input_text = "所以：\n[Q] " + psql_question['question'] + "\n[A] " + psql_question['chatglm_130b_answer'] + "\n[Target] " + psql_question['answer'] + "\n[Judgement] \n[Note]"
-    
+    print(input_text)
     response = openai.ChatCompletion.create(
         engine="wwzx-gpt-4-8k",
         messages=[
@@ -55,7 +55,7 @@ for psql_question in tqdm(psql_data, desc="处理问题进度"):
 
     # 提取返回词典里的最后一个词典的"content"值
     output_content = response.choices[0].message["content"]
-    print("ID:"+f"{psql_question['number']}" +",question:"+psql_question['question']+"，chatglm的答案是："+psql_question['chatglm_130b_answer']+" Target:" +psql_question['answer'])
+    #print("ID:"+f"{psql_question['number']}" +",question:"+psql_question['question']+"，chatglm的答案是："+psql_question['chatglm_130b_answer']+" Target:" +psql_question['answer'])
     print(output_content)
 
     # 更新PSQL数据，表中id对应psql_data里的number
